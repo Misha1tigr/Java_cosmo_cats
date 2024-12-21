@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: Java_cosmo_cats
+
+springdoc:
+  api-docs:
+    path: /api-specs
+    enabled: true

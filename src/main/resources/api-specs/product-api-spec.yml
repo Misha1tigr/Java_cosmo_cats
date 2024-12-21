@@ -1,0 +1,243 @@
+openapi: 3.1.0
+info:
+  title: Product API
+  description: API for managing products
+  version: 1.0.0
+
+paths:
+  /api/v1/products:
+    get:
+      summary: Get all products
+      tags:
+        - Products
+      responses:
+        200:
+          description: List of all products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponseDto'
+
+    post:
+      summary: Create a new product
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequestDto'
+      responses:
+        200:
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponseDto'
+        400:
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /api/v1/products/{id}:
+    get:
+      summary: Get product by ID
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the product
+      responses:
+        200:
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponseDto'
+        404:
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update a product
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequestDto'
+      responses:
+        200:
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponseDto'
+        400:
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        404:
+          description: Product or Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Delete a product
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the product
+      responses:
+        204:
+          description: Product deleted successfully
+        404:
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ProductRequestDto:
+      type: object
+      required:
+        - title
+        - description
+        - price
+        - categoryId
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          description: Title of the product (must contain space-related terms)
+        description:
+          type: string
+          maxLength: 255
+          description: Description of the product
+        price:
+          type: number
+          format: double
+          minimum: 0
+          description: Price of the product
+        categoryId:
+          type: integer
+          description: ID of the associated category
+        availability:
+          type: string
+          enum:
+            - AVAILABLE
+            - BACK_SOON
+            - UNKNOWN
+            - UNAVAILABLE
+          description: Availability status of the product
+
+    ProductResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the product
+        title:
+          type: string
+          description: Title of the product
+        description:
+          type: string
+          description: Description of the product
+        price:
+          type: number
+          format: double
+          description: Price of the product
+        availability:
+          type: string
+          description: User-friendly availability status
+        category:
+          $ref: '#/components/schemas/CategoryDto'
+
+    CategoryDto:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Title of the category
+        description:
+          type: string
+          description: Description of the category
+
+    ErrorResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          description: URI reference identifying the error type
+        title:
+          type: string
+          description: A short description of the error
+        status:
+          type: integer
+          description: HTTP status code
+        detail:
+          type: string
+          description: Detailed description of the error
+
+    ValidationError:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of the validation error
+        title:
+          type: string
+          description: Title of the validation error
+        status:
+          type: integer
+          description: HTTP status code
+        invalidParams:
+          type: array
+          items:
+            $ref: '#/components/schemas/FailedFields'
+
+    FailedFields:
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Name of the field that failed validation
+        reason:
+          type: string
+          description: Reason for the validation failure
