@@ -1,0 +1,80 @@
+openapi: 3.0.3
+info:
+  title: Category API
+  description: API for managing categories
+  version: 1.0.0
+
+paths:
+  /api/v1/categories:
+    get:
+      summary: Get all categories
+      tags:
+        - Categories
+      responses:
+        200:
+          description: List of all categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryDto'
+
+  /api/v1/categories/{id}:
+    get:
+      summary: Get category by ID
+      tags:
+        - Categories
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the category
+      responses:
+        200:
+          description: Category found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDto'
+        404:
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    CategoryDto:
+      type: object
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          description: Title of the category
+        description:
+          type: string
+          maxLength: 255
+          description: Description of the category
+
+    ErrorResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          description: URI reference identifying the error type
+        title:
+          type: string
+          description: A short description of the error
+        status:
+          type: integer
+          description: HTTP status code
+        detail:
+          type: string
+          description: Detailed description of the error

@@ -1,0 +1,123 @@
+openapi: 3.1.0
+info:
+  title: Order API
+  description: API for managing orders
+  version: 1.0.0
+
+paths:
+  /api/v1/orders/add-order:
+    post:
+      summary: Place a new order
+      tags:
+        - Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequestDto'
+      responses:
+        200:
+          description: Order placed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+        400:
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+components:
+  schemas:
+    OrderRequestDto:
+      type: object
+      required:
+        - orderItems
+        - address
+        - email
+        - customerName
+        - totalPrice
+        - orderStatus
+      properties:
+        orderItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemDto'
+        address:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+        customerName:
+          type: string
+          maxLength: 255
+        totalPrice:
+          type: number
+          format: double
+          minimum: 0
+        orderStatus:
+          type: string
+
+    OrderItemDto:
+      type: object
+      required:
+        - product
+        - quantity
+        - price
+      properties:
+        product:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+        price:
+          type: number
+          format: double
+          minimum: 0
+
+    OrderResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        consumerName:
+          type: string
+        address:
+          type: string
+        email:
+          type: string
+        totalPrice:
+          type: number
+        orderStatus:
+          type: string
+        orderItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemDto'
+
+    ValidationError:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        invalidParams:
+          type: array
+          items:
+            $ref: '#/components/schemas/FailedFields'
+
+    FailedFields:
+      type: object
+      properties:
+        fieldName:
+          type: string
+        reason:
+          type: string
